@@ -1,0 +1,376 @@
+<!-- Make bovine eartags in your webbrowser to facilitate testing without physical eartags present -->
+<!-- Oormerk Maker 01-09-2026 tbv nieuwe 12-cijferige oormerken in omloop, maar onvoldoende fysieke voorbeelden voor fysiek testen -->
+
+<!-- Wijzigingen  -->
+<!-- 01-09-2026   Ns    V0.1 Aangemaakt  -->
+<!-- 03-09-2026   Ns    V0.2 Kleine aanpassingen doorgevoerd  -->
+<!--   -->
+
+<!-- Wensenlijst  -->
+<!-- Verdeel over velden controleren voor alle NL-formaten  -->
+<!-- Ondersteuning meerdere landen toevoegen  -->
+<!--   -->
+
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Oormerk Maker</title>
+<style>
+  :root {
+    --ui-font: Inter, "Segoe UI", Helvetica, Arial, sans-serif;
+    --staal: #1D2327;        /* achtergrond */
+    --staal-licht: #2A3238;  /* paneel */
+    --lijn: #3D474E;         /* randen */
+    --tekst: #E4E8EA;        /* hoofdtekst */
+    --zacht: #93A0A8;        /* labels */
+    --signaal: #4E9A51;      /* knop Genereer oormerk */
+  }
+
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body {
+    margin: 0; padding: 24px;
+    background: var(--staal); color: var(--tekst);
+    font-family: var(--ui-font);
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; }
+  h1 { font-size: 22px; font-weight: 600; margin: 0 0 4px; }
+  .sub { font-size: 14px; color: var(--zacht); margin: 0 0 24px; }
+  .kolommen { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
+  .paneel {
+    flex: 1 1 340px; padding: 20px; border-radius: 6px;
+    background: var(--staal-licht); border: 1px solid var(--lijn);
+  }
+  .weergave { flex: 1 1 320px; }
+  label.veld { display: block; margin-bottom: 16px; }
+  .label { display: block; font-size: 13px; color: var(--zacht); margin-bottom: 4px; }
+  .hint { display: block; font-size: 11px; color: #6E7C85; margin-top: 4px; }
+  input[type=text], select {
+    width: 100%; padding: 8px 12px; border-radius: 4px;
+    background: var(--staal); border: 1px solid var(--lijn); color: var(--tekst);
+    font-family: ui-monospace, Consolas, Menlo, monospace;
+    font-size: 15px; letter-spacing: .04em; outline: none;
+  }
+  select { font-family: inherit; letter-spacing: normal; width: auto; }
+  input:focus, select:focus, button:focus { outline: 2px solid var(--signaal); outline-offset: 1px; }
+  .snel { display: flex; gap: 8px; }
+  .snel input { flex: 1; }
+  button {
+    padding: 8px 14px; border-radius: 4px; cursor: pointer;
+    background: var(--staal); border: 1px solid var(--lijn); color: var(--tekst);
+    font-size: 13px; font-family: inherit; white-space: nowrap;
+  }
+  button.primair {
+    width: 100%; padding: 14px; font-size: 16px; font-weight: 600;
+    background: var(--signaal); border-color: var(--signaal); color: #0F1417;
+  }
+  .scheiding { border-bottom: 1px solid var(--lijn); padding-bottom: 20px; margin-bottom: 20px; }
+  .rij { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; margin-bottom: 20px; }
+  .doek { background: #fff; padding: 16px; border-radius: 6px; max-width: 380px; margin: 0 auto; }
+  .acties { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 16px; }
+  .meta { font-size: 11px; color: #6E7C85; }
+  .fout { color: #E8A33D; font-size: 13px; margin-top: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Oormerk Maker</h1>
+  <p class="sub">Vul de velden in, druk op Genereer oormerk en download de afbeelding.</p>
+
+  <div class="kolommen">
+    <div class="paneel">
+      <div class="scheiding">
+        <span class="label">Volledig levensnummer (optioneel)</span>
+        <div class="snel">
+          <input type="text" id="snel" value="NL538037637">
+          <button id="btnVerdeel">Verdeel over velden</button>
+        </div>
+        <span class="hint">Laatste cijfer wordt het controlegetal, de vier cijfers daarvoor het grote nummer.</span>
+      </div>
+
+      <label class="veld"><span class="label">Landcode (boven de barcode)</span>
+        <input type="text" id="land" value="NL"></label>
+
+      <label class="veld"><span class="label">Nummer boven de barcode</span>
+        <input type="text" id="boven" value="5380">
+        <span class="hint">Staat op één regel naast de landcode.</span></label>
+
+      <label class="veld"><span class="label">Barcode-inhoud</span>
+        <input type="text" id="barcode" value="538037637">
+        <span class="hint">Wat de scanner uitleest.</span></label>
+
+      <label class="veld"><span class="label">Nummer onder de barcode</span>
+        <input type="text" id="onder" value="3763">
+        <span class="hint">Het grote, van veraf leesbare nummer.</span></label>
+
+      <label class="veld"><span class="label">Controlegetal (onder de barcode)</span>
+        <input type="text" id="controle" value="7">
+        <span class="hint">Klein cijfer rechtsboven het grote nummer.</span></label>
+
+      <label class="veld"><span class="label">Tekst op de lip</span>
+        <input type="text" id="lip" value="TEST">
+        <span class="hint">Laat leeg om weg te laten.</span></label>
+
+      <div class="rij">
+        <label><span class="label">Barcodetype</span>
+          <select id="type">
+            <option value="code128">Code 128</option>
+            <option value="code39">Code 39</option>
+          </select></label>
+        <label><span class="label">Kleur</span>
+          <select id="kleur">
+            <option value="geel">Geel</option>
+            <option value="groen">Groen</option>
+          </select></label>
+      </div>
+
+      <button class="primair" id="btnGenereer">Genereer oormerk</button>
+      <p class="fout" id="fout" hidden></p>
+    </div>
+
+    <div class="weergave">
+      <div id="doek" class="doek" hidden></div>
+      <div id="acties" class="acties" hidden>
+        <label class="meta">Schaal
+          <select id="schaal" style="margin-left:6px">
+            <option>1</option><option>2</option><option selected>3</option><option>4</option>
+          </select></label>
+        <button id="btnPng">Download PNG</button>
+        <button id="btnSvg">Download SVG</button>
+        <span class="meta" id="meta"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------- Code 128 ---------- */
+var CODE128 = ["11011001100","11001101100","11001100110","10010011000","10010001100",
+"10001001100","10011001000","10011000100","10001100100","11001001000","11001000100",
+"11000100100","10110011100","10011011100","10011001110","10111001100","10011101100",
+"10011100110","11001110010","11001011100","11001001110","11011100100","11001110100",
+"11101101110","11101001100","11100101100","11100100110","11101100100","11100110100",
+"11100110010","11011011000","11011000110","11000110110","10100011000","10001011000",
+"10001000110","10110001000","10001101000","10001100010","11010001000","11000101000",
+"11000100010","10110111000","10110001110","10001101110","10111011000","10111000110",
+"10001110110","11101110110","11010001110","11000101110","11011101000","11011100010",
+"11011101110","11101011000","11101000110","11100010110","11101101000","11101100010",
+"11100011010","11101111010","11001000010","11110001010","10100110000","10100001100",
+"10010110000","10010000110","10000101100","10000100110","10110010000","10110000100",
+"10011010000","10011000010","10000110100","10000110010","11000010010","11001010000",
+"11110111010","11000010100","10001111010","10100111100","10010111100","10010011110",
+"10111100100","10011110100","10011110010","11110100100","11110010100","11110010010",
+"11011011110","11011110110","11110110110","10101111000","10100011110","10001011110",
+"10111101000","10111100010","11110101000","11110100010","10111011110","10111101110",
+"11101011110","11110101110","11010000100","11010010000","11010011100","1100011101011"];
+
+function code128Bits(data) {
+  if (!data) throw new Error("Geen barcodewaarde ingevuld.");
+  var even = /^\d+$/.test(data) && data.length % 2 === 0;
+  var codes = [];
+  if (even) {
+    codes.push(105);
+    for (var i = 0; i < data.length; i += 2) codes.push(parseInt(data.substr(i, 2), 10));
+  } else {
+    codes.push(104);
+    for (var k = 0; k < data.length; k++) {
+      var c = data.charCodeAt(k);
+      if (c < 32 || c > 126) throw new Error('Teken "' + data[k] + '" past niet in Code 128B.');
+      codes.push(c - 32);
+    }
+  }
+  var som = codes[0];
+  for (var n = 1; n < codes.length; n++) som += codes[n] * n;
+  codes.push(som % 103);
+  codes.push(106);
+  return { bits: codes.map(function (x) { return CODE128[x]; }).join(""),
+           modus: even ? "Code 128C" : "Code 128B" };
+}
+
+/* ---------- Code 39 ---------- */
+var CODE39 = {"0":"nnnwwnwnn","1":"wnnwnnnnw","2":"nnwwnnnnw","3":"wnwwnnnnn","4":"nnnwwnnnw",
+"5":"wnnwwnnnn","6":"nnwwwnnnn","7":"nnnwnnwnw","8":"wnnwnnwnn","9":"nnwwnnwnn",
+"A":"wnnnnwnnw","B":"nnwnnwnnw","C":"wnwnnwnnn","D":"nnnnwwnnw","E":"wnnnwwnnn",
+"F":"nnwnwwnnn","G":"nnnnnwwnw","H":"wnnnnwwnn","I":"nnwnnwwnn","J":"nnnnwwwnn",
+"K":"wnnnnnnww","L":"nnwnnnnww","M":"wnwnnnnwn","N":"nnnnwnnww","O":"wnnnwnnwn",
+"P":"nnwnwnnwn","Q":"nnnnnnwww","R":"wnnnnnwwn","S":"nnwnnnwwn","T":"nnnnwnwwn",
+"U":"wwnnnnnnw","V":"nwwnnnnnw","W":"wwwnnnnnn","X":"nwnnwnnnw","Y":"wwnnwnnnn",
+"Z":"nwwnwnnnn","-":"nwnnnnwnw",".":"wwnnnnwnn"," ":"nwwnnnwnn","$":"nwnwnwnnn",
+"/":"nwnwnnnwn","+":"nwnnnwnwn","%":"nnnwnwnwn","*":"nwnnwnwnn"};
+
+function code39Bits(data) {
+  if (!data) throw new Error("Geen barcodewaarde ingevuld.");
+  var t = "*" + data.toUpperCase() + "*", bits = "";
+  for (var k = 0; k < t.length; k++) {
+    var p = CODE39[t[k]];
+    if (!p) throw new Error('Teken "' + t[k] + '" past niet in Code 39.');
+    for (var i = 0; i < 9; i++) {
+      var breed = p[i] === "w" ? 3 : 1;
+      bits += (i % 2 === 0 ? "1" : "0").repeat(breed);
+    }
+    if (k < t.length - 1) bits += "0";
+  }
+  return { bits: bits, modus: "Code 39" };
+}
+
+// Lettertype op het oormerk. Alleen lettertypen die op de computer
+// staan werken hier; zet reservenamen erachter, gescheiden door komma's.
+var LETTERTYPE_OORMERK = "Helvetica Neue, Helvetica, Arial, sans-serif";
+
+// Kleuren van het oormerk. Voeg geust een regel toe en zet dezelfde
+// naam ook bij het keuzelijstje <select id="kleur"> hierboven (regel 109).
+var KLEUREN = {
+  geel:  { vlak: "#F3C500", rim: "#DCB200", inkt: "#161616" },
+  groen: { vlak: "#68B96B", rim: "#559C58", inkt: "#161616" }
+};
+
+// Lettergroottes op het oormerk.
+var MAAT_BOVENREGEL = 54;   // maximum; wordt kleiner bij lange nummers
+var MAAT_GROOT       = 176; // het grote nummer
+var MAAT_CONTROLE    = 60;  // het kleine controlegetal
+var MAAT_LIP         = 21;  // de tekst op de lip
+
+var VB_B = 440, VB_H = 555;
+var SILHOUET = "M 78 195 L 158 195 C 180 195, 184 170, 190 144 A 62 62 0 1 1 250 144 " +
+  "C 256 170, 260 195, 282 195 L 370 195 Q 410 195 410 235 L 410 477 Q 410 525 362 525 " +
+  "L 78 525 Q 30 525 30 477 L 30 235 Q 30 195 78 195 Z";
+
+function esc(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function bouwSvg(d) {
+  var links = 42, rechts = 398, nuttig = rechts - links;
+  var stilte = 8, mod = nuttig / (d.bits.length + stilte * 2);
+  var balken = "", i = 0;
+  while (i < d.bits.length) {
+    if (d.bits[i] === "1") {
+      var j = i;
+      while (j < d.bits.length && d.bits[j] === "1") j++;
+      balken += '<rect x="' + (links + (stilte + i) * mod).toFixed(2) + '" y="292" width="' +
+                ((j - i) * mod).toFixed(2) + '" height="74" fill="#161616"/>';
+      i = j;
+    } else i++;
+  }
+
+  var font = LETTERTYPE_OORMERK;
+  var K = d.kleur;
+  var bovenregel = [d.land, d.boven].filter(Boolean).join(" ");
+  var bovenFs = Math.min(MAAT_BOVENREGEL, nuttig / Math.max(bovenregel.length * 0.6, 1));
+  var grootBreedte = nuttig - (d.controle ? 56 : 0);
+
+  var s = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + VB_B + ' ' + VB_H +
+          '" width="100%" style="display:block">';
+  s += '<rect x="0" y="0" width="' + VB_B + '" height="' + VB_H + '" fill="#FFFFFF"/>';
+  s += '<path d="' + SILHOUET + '" fill="' + K.vlak + '" stroke="' + K.rim + '" stroke-width="2"/>';
+  s += '<circle cx="220" cy="90" r="31" fill="none" stroke="' + K.rim + '" stroke-width="3"/>';
+  s += '<circle cx="220" cy="90" r="19" fill="#2B2B2B"/>';
+  s += '<circle cx="220" cy="90" r="19" fill="none" stroke="' + K.rim + '" stroke-width="2"/>';
+
+  if (d.lip) {
+    s += '<text x="220" y="181" text-anchor="middle" font-family="' + font +
+         '" font-size="' + MAAT_LIP + '" font-weight="600" fill="' + K.inkt + '" opacity="0.8">' + esc(d.lip) + '</text>';
+  }
+  if (bovenregel) {
+    s += '<text x="' + links + '" y="268" font-family="' + font + '" font-size="' + bovenFs.toFixed(1) +
+         '" font-weight="500" fill="' + K.inkt + '" textLength="' + nuttig +
+         '" lengthAdjust="spacing">' + esc(bovenregel) + '</text>';
+  }
+  s += balken;
+  if (d.onder) {
+    s += '<text x="' + links + '" y="505" font-family="' + font +
+         '" font-size="' + MAAT_GROOT + '" font-weight="700" fill="' + K.inkt + '" textLength="' + grootBreedte +
+         '" lengthAdjust="spacingAndGlyphs">' + esc(d.onder) + '</text>';
+  }
+  if (d.controle) {
+    s += '<text x="' + rechts + '" y="425" text-anchor="end" font-family="' + font +
+         '" font-size="' + MAAT_CONTROLE + '" font-weight="700" fill="' + K.inkt + '">' + esc(d.controle) + '</text>';
+  }
+  return s + '</svg>';
+}
+
+/* ---------- Bediening ---------- */
+var $ = function (id) { return document.getElementById(id); };
+
+function toonFout(bericht) {
+  var f = $("fout");
+  if (bericht) { f.textContent = bericht; f.hidden = false; }
+  else { f.textContent = ""; f.hidden = true; }
+}
+
+$("btnVerdeel").addEventListener("click", function () {
+  var ruw = $("snel").value.trim().toUpperCase();
+  var letters = (ruw.match(/^[A-Z]+/) || ["NL"])[0];
+  var cijfers = ruw.replace(/[^0-9]/g, "");
+  if (cijfers.length < 6) { toonFout("Vul minstens zes cijfers in om te kunnen verdelen."); return; }
+  var romp = cijfers.slice(0, -1);
+  $("land").value = letters;
+  $("boven").value = romp.slice(0, -4);
+  $("barcode").value = cijfers;
+  $("onder").value = romp.slice(-4);
+  $("controle").value = cijfers.slice(-1);
+  toonFout("");
+});
+
+$("btnGenereer").addEventListener("click", function () {
+  try {
+    var waarde = $("barcode").value.trim();
+    var r = $("type").value === "code39" ? code39Bits(waarde) : code128Bits(waarde);
+    var svg = bouwSvg({
+      land: $("land").value.trim(),
+      boven: $("boven").value.trim(),
+      onder: $("onder").value.trim(),
+      controle: $("controle").value.trim(),
+      lip: $("lip").value.trim(),
+      bits: r.bits,
+      kleur: KLEUREN[$("kleur").value]
+    });
+    $("doek").innerHTML = svg;
+    $("doek").hidden = false;
+    $("acties").hidden = false;
+    $("meta").textContent = r.modus + " · " + r.bits.length + " modules";
+    toonFout("");
+  } catch (e) {
+    toonFout(e.message);
+    $("doek").hidden = true;
+    $("acties").hidden = true;
+  }
+});
+
+function svgUrl() {
+  var svg = $("doek").querySelector("svg");
+  if (!svg) return null;
+  var bron = new XMLSerializer().serializeToString(svg);
+  return URL.createObjectURL(new Blob([bron], { type: "image/svg+xml;charset=utf-8" }));
+}
+
+$("btnSvg").addEventListener("click", function () {
+  var url = svgUrl(); if (!url) return;
+  var a = document.createElement("a");
+  a.href = url; a.download = "oormerk.svg"; a.click();
+  URL.revokeObjectURL(url);
+});
+
+$("btnPng").addEventListener("click", function () {
+  var url = svgUrl(); if (!url) return;
+  var schaal = parseInt($("schaal").value, 10);
+  var img = new Image();
+  img.onload = function () {
+    var c = document.createElement("canvas");
+    c.width = VB_B * schaal; c.height = VB_H * schaal;
+    var ctx = c.getContext("2d");
+    ctx.fillStyle = "#FFFFFF"; ctx.fillRect(0, 0, c.width, c.height);
+    ctx.drawImage(img, 0, 0, c.width, c.height);
+    URL.revokeObjectURL(url);
+    var a = document.createElement("a");
+    a.href = c.toDataURL("image/png"); a.download = "oormerk.png"; a.click();
+  };
+  img.src = url;
+});
+
+$("btnGenereer").click();
+</script>
+</body>
+</html>
